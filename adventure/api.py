@@ -8,6 +8,8 @@ from .models import *
 from rest_framework.decorators import api_view
 import json
 
+
+
 # instantiate pusher
 # pusher = Pusher(app_id=config('PUSHER_APP_ID'), key=config('PUSHER_KEY'), secret=config('PUSHER_SECRET'), cluster=config('PUSHER_CLUSTER'))
 
@@ -65,3 +67,14 @@ def move(request):
 def say(request):
     # IMPLEMENT
     return JsonResponse({'error':"Not yet implemented"}, safe=True, status=500)
+
+@csrf_exempt
+@api_view(["GET"])
+def rooms(request):
+    rooms = Room.objects.all()
+    room_data = []
+
+    for room in rooms:
+        room_data.append(get_json(room))
+
+    return JsonResponse({'data' : room_data}, safe=True, status=500)
