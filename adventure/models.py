@@ -15,10 +15,13 @@ def get_json(obj):
     return data
 
 tiles = ['nothing', 'grass']
+directions = {'n': 0, 's': 1, 'e' : 2, 'w' : 3}
+inverse_diretions = {v: k for k, v in directions.items()}
 
 room_width = 40
 room_height = 40
 room_size = room_width * room_height
+
 
 def set_rectangle(tiles, start_x, start_y, width, height, tile_type):
     for y in range(start_y, start_y + height):
@@ -26,51 +29,49 @@ def set_rectangle(tiles, start_x, start_y, width, height, tile_type):
             tiles[y*room_width + x] = tile_type
     return tiles
 
+class Connection(models.Model):
+    source = models.IntegerField(default=0)
+    target = models.IntegerField(default=0)
+    direction = models.CharField(max_length=1)
 
 
-
-# def print
 
 class Room(models.Model):
     title = models.CharField(max_length=50, default="DEFAULT TITLE")
     description = models.CharField(max_length=500, default="DEFAULT DESCRIPTION")
-    # text [][]
 
-    size = room_width * room_height
-    tiles = ArrayField(models.IntegerField(default=0), size=size,
-            default=lambda:( [0] * room_size))
+#    size = room_width * room_height
+#    tiles = ArrayField(models.IntegerField(default=0), size=size, default=lambda:( [0] * room_size))
 
-    n_to = models.IntegerField(default=0)
-    s_to = models.IntegerField(default=0)
-    e_to = models.IntegerField(default=0)
-    w_to = models.IntegerField(default=0)
+    connections = models.ManyToManyField(Connection)
+
+    x = models.IntegerField(default=0)
+    y = models.IntegerField(default=0)
 
 
-    def generate_interior(self):
-        set_rectangle(self.tiles, 5, 5, 10, 20, 1)
-        self.save()
+#    def generate_interior(self):
+#        set_rectangle(self.tiles, 5, 5, 10, 20, 1)
+#        self.save()
+# root :
+    # node list of {id: int id}
+    # links list [source: int, target: int]
 
-    def connectRooms(self, destinationRoom, direction):
+    def connect_rooms(self, destinationRoom, direction):
         destinationRoomID = destinationRoom.id
+
         try:
-            destinationroom = Room.objects.get(id=destinationRoomID)
+           Room.objects.get(id=destinationRoomID)
         except Room.DoesNotExist:
             print("That room does not exist")
+
         else:
-            if direction == "n":
-                self.n_to = destinationRoomID
-            elif direction == "s":
-                self.s_to = destinationRoomID
-            elif direction == "e":
-                self.e_to = destinationRoomID
-            elif direction == "w":
-                self.w_to = destinationRoomID
-            else:
-                print("Invalid direction")
-                return
+            connection = Connection(source=self.id, target=destinationRoomID,
+                                    direction=direction)
+            connection.save()
+            self.connections.add(connection)
             self.save()
 
-    def playerNames(self, currentPlayerID):
+    def player_names(self, currentPlayerID):
         return [p.user.username for p in Player.objects.filter(currentRoom=self.id) if p.id != int(currentPlayerID)]
 
     def playerUUIDs(self, currentPlayerID):
