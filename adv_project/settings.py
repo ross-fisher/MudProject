@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     # call python manage.py reset_migration app-name other-app
     # can pass in --cached and it won't delete all the migrations
     'reset_migrations',
+    'django_extensions'
 ]
 
 

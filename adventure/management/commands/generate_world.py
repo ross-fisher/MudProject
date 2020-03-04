@@ -20,3 +20,4 @@ class Command(BaseCommand):
         world_height = 10
 
         world.generate_rooms(world_width, world_height)
+        print(len(models.Room.objects.all()))

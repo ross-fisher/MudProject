@@ -4,7 +4,7 @@ from adventure.models import Player, Room
 from util.sample_generator import *
 
 
-Room.objects.all().delete()
+# Room.objects.all().delete()
 #
 # r_outside = Room(title="Outside Cave Entrance",
 #                description="North of you, the cave mount beckons")
@@ -97,6 +97,8 @@ def generate_rooms(size_x, size_y):
             room = models.Room(title="A Generic Room", description="This is a generic room.",
                                x=x, y=y)
             room.save()
+
+            print(room)
 
             # Note that in Django, you'll need to save the room after you create it
 

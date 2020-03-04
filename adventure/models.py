@@ -14,6 +14,7 @@ def get_json(obj):
     data.pop('_state')
     return data
 
+
 tiles = ['nothing', 'grass']
 directions = {'n': 0, 's': 1, 'e' : 2, 'w' : 3}
 inverse_diretions = {v: k for k, v in directions.items()}
@@ -29,11 +30,11 @@ def set_rectangle(tiles, start_x, start_y, width, height, tile_type):
             tiles[y*room_width + x] = tile_type
     return tiles
 
+
 class Connection(models.Model):
     source = models.IntegerField(default=0)
     target = models.IntegerField(default=0)
-    direction = models.CharField(max_length=1)
-
+    direction = models.CharField(max_length=2)
 
 
 class Room(models.Model):
@@ -43,10 +44,12 @@ class Room(models.Model):
 #    size = room_width * room_height
 #    tiles = ArrayField(models.IntegerField(default=0), size=size, default=lambda:( [0] * room_size))
 
-    connections = models.ManyToManyField(Connection)
 
     x = models.IntegerField(default=0)
     y = models.IntegerField(default=0)
+
+    targets = ArrayField(models.IntegerField(default=0), default=list)
+    room_directions = ArrayField(models.CharField(max_length=2), default=list)
 
 
 #    def generate_interior(self):
@@ -58,18 +61,21 @@ class Room(models.Model):
 
     def connect_rooms(self, destinationRoom, direction):
         destinationRoomID = destinationRoom.id
+        self.save()
 
         try:
            Room.objects.get(id=destinationRoomID)
         except Room.DoesNotExist:
             print("That room does not exist")
 
-        else:
-            connection = Connection(source=self.id, target=destinationRoomID,
-                                    direction=direction)
-            connection.save()
-            self.connections.add(connection)
-            self.save()
+
+        self.targets.append(destinationRoomID)
+        self.room_directions.append(direction)
+
+        self.save()
+
+
+
 
     def player_names(self, currentPlayerID):
         return [p.user.username for p in Player.objects.filter(currentRoom=self.id) if p.id != int(currentPlayerID)]
@@ -77,6 +83,9 @@ class Room(models.Model):
     def playerUUIDs(self, currentPlayerID):
         return [p.uuid for p in Player.objects.filter(currentRoom=self.id) if p.id != int(currentPlayerID)]
 
+    def __str__(self):
+        data = get_json(self)
+        return str(data)
 
 
 
@@ -96,6 +105,7 @@ class Player(models.Model):
         except Room.DoesNotExist:
             self.initialize()
             return self.room()
+
 
 @receiver(post_save, sender=User)
 def create_user_player(sender, instance, created, **kwargs):

@@ -70,8 +70,11 @@ def say(request):
 @api_view(["GET"])
 def rooms(request):
     rooms = Room.objects.all()
+
+    print(len(rooms))
+
     room_data = []
     for room in rooms:
-        room_data.append(get_json(room))
+        room_data.append(str(room))
     return JsonResponse({'data' : room_data}, safe=True, status=500)
 
