@@ -66,6 +66,7 @@ def say(request):
     # IMPLEMENT
     return JsonResponse({'error':"Not yet implemented"}, safe=True, status=500)
 
+
 @csrf_exempt
 @api_view(["GET"])
 def rooms(request):
@@ -74,7 +75,8 @@ def rooms(request):
     print(len(rooms))
 
     room_data = []
-    for room in rooms:
-        room_data.append(str(room))
-    return JsonResponse({'data' : room_data}, safe=True, status=500)
+    for room in room
+        room_data.append(str(room)
+   return JsonResponse({'data' : room_data}, safe=True)
+#    return JsonResponse({'data' : room_data}, safe=True, status=500)
 
