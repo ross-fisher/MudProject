@@ -9,7 +9,6 @@ import uuid
 import json
 
 
-
 def get_json(obj):
     data = obj.__dict__.copy()
     data.pop('_state')
@@ -17,14 +16,29 @@ def get_json(obj):
 
 tiles = ['nothing', 'grass']
 
-room_width = 10
-room_height = 10
+room_width = 40
+room_height = 40
+room_size = room_width * room_height
+
+def set_rectangle(tiles, start_x, start_y, width, height, tile_type):
+    for y in range(start_y, start_y + height):
+        for x in range(start_x, start_x + width):
+            tiles[y*room_width + x] = tile_type
+    return tiles
+
+
+
+
+# def print
+
 class Room(models.Model):
     title = models.CharField(max_length=50, default="DEFAULT TITLE")
     description = models.CharField(max_length=500, default="DEFAULT DESCRIPTION")
-
     # text [][]
-    tiles = ArrayField(models.IntegerField(default=0), size=room_width*room_height)
+
+    size = room_width * room_height
+    tiles = ArrayField(models.IntegerField(default=0), size=size,
+            default=lambda:( [0] * room_size))
 
     n_to = models.IntegerField(default=0)
     s_to = models.IntegerField(default=0)
@@ -33,9 +47,8 @@ class Room(models.Model):
 
 
     def generate_interior(self):
-        self.tiles[0:5] = 1
+        set_rectangle(self.tiles, 5, 5, 10, 20, 1)
         self.save()
-
 
     def connectRooms(self, destinationRoom, direction):
         destinationRoomID = destinationRoom.id
@@ -94,6 +107,26 @@ def save_user_player(sender, instance, **kwargs):
     instance.player.save()
 
 
+def get_a_room():
+    r = Room.objects.all()[0]
+    return r
 
 
+def partition(array, n):
+    for i in range(0, len(array), n):
+        yield array[i:i+n]
+
+    if i < len(array):
+        yield array[i:]
+
+
+def get_room_matrix(room):
+    return partition(room.tiles, room_width)
+
+
+if __name__ =='__main__':
+    r = Room.objects.all()
+    r.generate_interior()
+    print(r.tiles[5:20])
+    print(r.tiles[room_width+5:room_width+25])
 
