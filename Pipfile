@@ -19,6 +19,7 @@ dj-database-url = "*"
 whitenoise = "*"
 django-reset-migrations = "*"
 django-extensions = "*"
+pipfile = "*"
 
 [dev-packages]
 
