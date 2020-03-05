@@ -22,7 +22,7 @@ def initialize(request):
     player_id = player.id
     uuid = player.uuid
     room = player.room()
-    players = room.playerNames(player_id)
+    players = room.player_names(player_id)
     return JsonResponse({'uuid': uuid, 'name': player.user.username, 'title': room.title,
             'description': room.description, 'players': players}, safe=False)
 
