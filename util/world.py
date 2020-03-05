@@ -26,6 +26,8 @@ biomes = ['Grass lands',
           'Jungle lands',
           'Swamp lands']
 
+opposite_direction = {'w' : 'e', 'n' : 's', 's' : 'n', 'e' : 'w'}
+
 def generate_rooms(size_x, size_y):
         '''
         Fill up the grid, bottom to top, in a zig-zag pattern
@@ -84,7 +86,7 @@ def generate_rooms(size_x, size_y):
             # Connect the new room to the previous room
             if previous_room is not None:
                 previous_room.connect_rooms(room, room_direction)
-                room.connect_rooms(previous_room, room_direction)
+                room.connect_rooms(previous_room, opposite_direction[room_direction])
 
             # Update iteration variables
             previous_room = room

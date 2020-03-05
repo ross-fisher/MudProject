@@ -57,7 +57,10 @@ def move(request):
         # for p_uuid in nextPlayerUUIDs:
         #     pusher.trigger(f'p-channel-{p_uuid}', u'broadcast', {'message':f'{player.user.username} has entered from the {reverse_dirs[direction]}.'})
 
-        return JsonResponse({'name': player.user.username, 'title': nextRoom.title, 'description': nextRoom.description, 'players': players, 'error_msg':""},
+        return JsonResponse({'name': player.user.username, 'title': nextRoom.title,
+                            #'description': nextRoom.description,
+                             'biome': nextRoom.biome,
+                            'players': players, 'error_msg':""},
                 safe=False)
 
     else:
@@ -92,6 +95,7 @@ def rooms(request):
     except Exception as e:
         return JsonResponse({'error': f'{e}'},status=500)
         #    return JsonResponse({'data' : room_data}, safe=True, status=500)
+
 
 @csrf_exempt
 @api_view(['POST'])
