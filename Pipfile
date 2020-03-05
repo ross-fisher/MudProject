@@ -17,6 +17,8 @@ django-rest-api = "*"
 psycopg2-binary = "*"
 dj-database-url = "*"
 whitenoise = "*"
+django-reset-migrations = "*"
+django-extensions = "*"
 
 [dev-packages]
 
