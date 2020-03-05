@@ -75,7 +75,7 @@ def rooms(request):
     print(len(rooms))
 
     room_data = []
-    for room in room:
+    for room in rooms:
         room_data.append(str(room))
 
     return JsonResponse({'data' : room_data}, safe=False)
