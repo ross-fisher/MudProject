@@ -70,14 +70,10 @@ class Room(models.Model):
         except Room.DoesNotExist:
             print("That room does not exist")
 
-
         self.targets.append(destinationRoomID)
         self.room_directions.append(direction)
 
         self.save()
-
-
-
 
     def player_names(self, currentPlayerID):
         return [p.user.username for p in Player.objects.filter(currentRoom=self.id) if p.id != int(currentPlayerID)]

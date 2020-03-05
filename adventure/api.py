@@ -38,14 +38,17 @@ def move(request):
     data = json.loads(request.body)
     direction = data['direction']
     room = player.room()
-    nextRoomID = None
+
+    nextRoom = None
+    for i, room_direction in enumerate(room.room_directions):
+        if direction == room_direction:
+            nextRoom = Room.objects.get(id=room.targets[i])
 
 
-    if nextRoomID is not None and nextRoomID > 0:
-        nextRoom = Room.objects.get(id=nextRoomID)
-        player.currentRoom=nextRoomID
+    if nextRoom is not None:
+        player.currentRoom = nextRoom.id # uses id
         player.save()
-        players = nextRoom.playerNames(player_id)
+        players = nextRoom.player_names(player_id)
         currentPlayerUUIDs = room.playerUUIDs(player_id)
         nextPlayerUUIDs = nextRoom.playerUUIDs(player_id)
 
@@ -58,7 +61,7 @@ def move(request):
                 safe=False)
 
     else:
-        players = room.playerNames(player_id)
+        players = room.player_names(player_id)
         return JsonResponse({'name': player.user.username, 'title': room.title, 'description': room.description, 'players': players, 'error_msg': "You cannot move that way."},
                 safe=False)
 
@@ -142,3 +145,12 @@ def item(request):
 
     item.save()
     return response
+
+@csrf_exempt
+@api_view(['GET'])
+def room(request):
+    player = request.user.player
+    room = player.room()
+    return JsonResponse({'room': eval(str(room))}, safe=False)
+
+
