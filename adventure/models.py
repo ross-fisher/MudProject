@@ -51,6 +51,8 @@ class Room(models.Model):
     targets = ArrayField(models.IntegerField(default=0), default=list)
     room_directions = ArrayField(models.CharField(max_length=2), default=list)
 
+    biome = models.CharField(max_length=25, default='Grass lands')
+
 
 #    def generate_interior(self):
 #        set_rectangle(self.tiles, 5, 5, 10, 20, 1)
