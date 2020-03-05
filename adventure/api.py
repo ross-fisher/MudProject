@@ -104,7 +104,6 @@ def room_items(request):
 def inventory(request):
     player = request.user.player
     items = Item.objects.filter(player=player)
-
     return JsonResponse({'data': items}, safe=False, status=500)
 
 
