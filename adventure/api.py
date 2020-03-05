@@ -78,6 +78,6 @@ def rooms(request):
     for room in room:
         room_data.append(str(room))
 
-   return JsonResponse({'data' : room_data}, safe=False)
+    return JsonResponse({'data' : room_data}, safe=False)
 #    return JsonResponse({'data' : room_data}, safe=True, status=500)
 
