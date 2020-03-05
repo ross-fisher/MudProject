@@ -76,7 +76,7 @@ def rooms(request):
 
     room_data = []
     for room in rooms:
-        room_data.append(str(room))
+        room_data.append(dict(room))
 
     return JsonResponse({'data' : room_data}, safe=False)
 #    return JsonResponse({'data' : room_data}, safe=True, status=500)
