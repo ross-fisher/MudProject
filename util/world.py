@@ -26,7 +26,9 @@ biomes = ['Grass lands',
           'Jungle lands',
           'Swamp lands']
 
-opposite_direction = {'w' : 'e', 'n' : 's', 's' : 'n', 'e' : 'w'}
+
+opposite_direction = {'w': 'e', 'n': 's', 's': 'n', 'e': 'w'}
+
 
 def generate_rooms(size_x, size_y):
         '''

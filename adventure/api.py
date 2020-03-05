@@ -14,6 +14,11 @@ from util import world
 # instantiate pusher
 # pusher = Pusher(app_id=config('PUSHER_APP_ID'), key=config('PUSHER_KEY'), secret=config('PUSHER_SECRET'), cluster=config('PUSHER_CLUSTER'))
 
+
+def mapv(f, coll):
+    return list(map(f, coll))
+
+
 @csrf_exempt
 @api_view(["GET"])
 def initialize(request):
@@ -78,7 +83,7 @@ def say(request):
     cm = ChatMessage(message=data['message'], player=player, room=room)
     cm.save()
 
-    return JsonResponse({'error': ""}, safe=False, status=500)
+    return JsonResponse({'message': f'You said {cm.message}', 'error': ""}, safe=False, status=500)
 
 
 @csrf_exempt
@@ -112,7 +117,7 @@ def room_items(request):
 def inventory(request):
     player = request.user.player
     items = Item.objects.filter(player=player)
-    return JsonResponse({'data': items}, safe=False, status=500)
+    return JsonResponse({'data': mapv(get_json, items)}, safe=False, status=500)
 
 
 @csrf_exempt
@@ -154,7 +159,8 @@ def item(request):
 @api_view(['GET'])
 def room(request):
     player = request.user.player
-    room = player.room()
-    return JsonResponse({'room': eval(str(room))}, safe=False)
+    _room = player.room()
+    messages = ChatMessage.objects.filter(room=_room)
+    return JsonResponse({'room': eval(str(_room)), 'messages': mapv(get_json, messages)}, safe=False)
 
 
