@@ -109,6 +109,21 @@ class Player(models.Model):
             return self.room()
 
 
+message_length = 200
+class ChatMessage(models.Model):
+    message = models.CharField(max_length=message_length)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+
+
+class Item(models.Model):
+    name =  models.CharField(max_length=50)
+    description = models.CharField(max_length=300)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE, null=True, blank=True)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, null=True, blank=True)
+
+
+
 @receiver(post_save, sender=User)
 def create_user_player(sender, instance, created, **kwargs):
     if created:

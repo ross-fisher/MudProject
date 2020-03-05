@@ -23,7 +23,8 @@ def initialize(request):
     uuid = player.uuid
     room = player.room()
     players = room.playerNames(player_id)
-    return JsonResponse({'uuid': uuid, 'name': player.user.username, 'title': room.title, 'description': room.description, 'players': players}, safe=True)
+    return JsonResponse({'uuid': uuid, 'name': player.user.username, 'title': room.title,
+            'description': room.description, 'players': players}, safe=False)
 
 
 # @csrf_exempt
@@ -53,18 +54,25 @@ def move(request):
         # for p_uuid in nextPlayerUUIDs:
         #     pusher.trigger(f'p-channel-{p_uuid}', u'broadcast', {'message':f'{player.user.username} has entered from the {reverse_dirs[direction]}.'})
 
-        return JsonResponse({'name':player.user.username, 'title':nextRoom.title, 'description':nextRoom.description, 'players':players, 'error_msg':""}, safe=True)
+        return JsonResponse({'name': player.user.username, 'title': nextRoom.title, 'description': nextRoom.description, 'players': players, 'error_msg':""},
+                safe=False)
 
     else:
         players = room.playerNames(player_id)
-        return JsonResponse({'name':player.user.username, 'title':room.title, 'description':room.description, 'players':players, 'error_msg':"You cannot move that way."}, safe=True)
+        return JsonResponse({'name': player.user.username, 'title': room.title, 'description': room.description, 'players': players, 'error_msg': "You cannot move that way."},
+                safe=False)
 
 
 @csrf_exempt
 @api_view(["POST"])
 def say(request):
-    # IMPLEMENT
-    return JsonResponse({'error':"Not yet implemented"}, safe=True, status=500)
+    player = request.user.player
+    room = player.room()
+    data = json.loads(request.body)
+    cm = ChatMessage(message=data['message'], player=player, room=room)
+    cm.save()
+
+    return JsonResponse({'error': ""}, safe=False, status=500)
 
 
 @csrf_exempt
@@ -78,6 +86,59 @@ def rooms(request):
     for room in rooms:
         room_data.append(eval(str(room)))
 
-    return JsonResponse({'data' : room_data}, safe=False)
+    return JsonResponse({'data': room_data}, safe=False, status=500)
 #    return JsonResponse({'data' : room_data}, safe=True, status=500)
 
+@csrf_exempt
+@api_view(['POST'])
+def room_items(request):
+    data = json.loads(request.body)
+    room = Room.objects.get(id=data['room_id'])
+    items = Item.objects.filter(room=room)
+
+    return JsonResponse({'data': items}, safe=False, status=500)
+
+
+@csrf_exempt
+@api_view(['GET'])
+def inventory(request):
+    player = request.user.player
+    items = Item.objects.filter(player=player)
+
+    return JsonResponse({'data': items}, safe=False, status=500)
+
+
+@csrf_exempt
+@api_view(['POST'])
+def item(request):
+    print('ITEM endpoint')
+
+    data = json.loads(request.body)
+    action = data['action']
+    item_id = data['item_id']
+    item = Item.objects.get(id=item_id)
+    item_room = item.room
+
+    player = request.user.player
+    room = player.room()
+
+    print(item)
+
+    response = JsonResponse({'error': "Invalid Action"})
+
+    # drop the item into the room
+    if item_room != player.room:
+        response = JsonResponse({'error': "Item and player are not in the same room."})
+        pass
+    elif action == 'drop':
+        item.room = room
+        item.player = None
+        response = JsonResponse({'message': 'Dropped the item {item.name}'})
+    # take an item from the room, must be in the same room as the item
+    elif action == 'take':
+        item.room = None
+        item.player = player
+        response = JsonResponse({'message': 'Picked up the item {item.name}'})
+
+    item.save()
+    return response
