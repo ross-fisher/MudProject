@@ -78,16 +78,17 @@ def say(request):
 @csrf_exempt
 @api_view(["GET"])
 def rooms(request):
-    rooms = Room.objects.all()
+    try:
+        rooms = Room.objects.all()
 
-    print(len(rooms))
+        room_data = []
+        for room in rooms:
+            room_data.append(eval(str(room)))
 
-    room_data = []
-    for room in rooms:
-        room_data.append(eval(str(room)))
-
-    return JsonResponse({'data': room_data}, safe=False, status=500)
-#    return JsonResponse({'data' : room_data}, safe=True, status=500)
+        return JsonResponse({'data': room_data}, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': f'{e}'},status=500)
+        #    return JsonResponse({'data' : room_data}, safe=True, status=500)
 
 @csrf_exempt
 @api_view(['POST'])
