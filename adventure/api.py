@@ -18,19 +18,25 @@ from util import world
 def mapv(f, coll):
     return list(map(f, coll))
 
+def user_info(player, room):
+    if player is None:
+        return {'error_msg': 'No such player'}
+    elif room is None:
+        return {'error_msg': 'No such room'}
+
+    players = room.player_names(player.id)
+    return {'name': player.user.username, 'title': room.title,
+            'biome': room.biome, 'players': players}
+
+    pass
 
 @csrf_exempt
 @api_view(["GET"])
 def initialize(request):
-    user = request.user
-    player = user.player
-    player_id = player.id
-    uuid = player.uuid
+    player  = request.user.player
     room = player.room()
-    players = room.player_names(player_id)
-    return JsonResponse({'uuid': uuid, 'name': player.user.username, 'title': room.title,
-            'description': room.description, 'players': players}, safe=False)
-
+    response = user_info(player, room)
+    return JsonResponse(response)
 
 # @csrf_exempt
 @api_view(["POST"])
@@ -43,8 +49,8 @@ def move(request):
     data = json.loads(request.body)
     direction = data['direction']
     room = player.room()
-
     nextRoom = None
+
     for i, room_direction in enumerate(room.room_directions):
         if direction == room_direction:
             nextRoom = Room.objects.get(id=room.targets[i])
@@ -56,26 +62,16 @@ def move(request):
         players = nextRoom.player_names(player_id)
         currentPlayerUUIDs = room.playerUUIDs(player_id)
         nextPlayerUUIDs = nextRoom.playerUUIDs(player_id)
-
         # for p_uuid in currentPlayerUUIDs:
         #     pusher.trigger(f'p-channel-{p_uuid}', u'broadcast', {'message':f'{player.user.username} has walked {dirs[direction]}.'})
         # for p_uuid in nextPlayerUUIDs:
         #     pusher.trigger(f'p-channel-{p_uuid}', u'broadcast', {'message':f'{player.user.username} has entered from the {reverse_dirs[direction]}.'})
-
-        return JsonResponse({'name': player.user.username, 'title': nextRoom.title,
-                            #'description': nextRoom.description,
-                             'biome': nextRoom.biome,
-                            'players': players, 'error_msg':""},
-                safe=False)
-
+        response = user_info(player, nextRoom)
+        return JsonResponse(response)
     else:
-        players = room.player_names(player_id)
-        return JsonResponse({'name': player.user.username, 'title': room.title,
-                            #'description': room.description,
-                            'biome': room.biome,
-                            'players': players,
-                            'error_msg': "You cannot move that way."},
-                safe=False)
+        response = user_info(player, room)
+        response['error_msg'] = "You cannot move that way."
+        return JsonResponse(response)
 
 
 @csrf_exempt
