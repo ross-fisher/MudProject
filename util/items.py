@@ -15,9 +15,10 @@ def generate_items():
     rooms = list(Room.objects.all())
     print(rooms)
     room_sample = random.sample(rooms, k=50) # sample 50 rooms
+
     for room in room_sample:
         item_data = random.choice(items)
-        item = Item(name=item_data['name'], description=item_data['description'])
+        item = Item.objects.create(name=item_data['name'], description=item_data['description'])
         item.room = room
         item.save()
 

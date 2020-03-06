@@ -76,8 +76,8 @@ def generate_rooms(size_x, size_y):
 
 
             # Create a room in the given direction
-            room = models.Room(title=str(room_count), description="This is a generic room.",
-                               x=x, y=y, biome=biome)
+            room = models.Room.create(title=str(room_count), description="This is a generic room.",
+                                      x=x, y=y, biome=biome)
             room.save()
 
             # Note that in Django, you'll need to save the room after you create it

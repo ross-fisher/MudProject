@@ -70,7 +70,11 @@ def move(request):
 
     else:
         players = room.player_names(player_id)
-        return JsonResponse({'name': player.user.username, 'title': room.title, 'description': room.description, 'players': players, 'error_msg': "You cannot move that way."},
+        return JsonResponse({'name': player.user.username, 'title': room.title,
+                            #'description': room.description,
+                             'biome': nextRoom.biome,
+                            'players': players,
+                            'error_msg': "You cannot move that way."},
                 safe=False)
 
 
@@ -80,7 +84,7 @@ def say(request):
     player = request.user.player
     room = player.room()
     data = json.loads(request.body)
-    cm = ChatMessage(message=data['message'], player=player, room=room)
+    cm = ChatMessage.objects.create(message=data['message'], player=player, room=room)
     cm.save()
 
     return JsonResponse({'message': f'You said {cm.message}', 'error': ""}, safe=False, status=500)
