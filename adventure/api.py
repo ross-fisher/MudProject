@@ -72,7 +72,7 @@ def move(request):
         players = room.player_names(player_id)
         return JsonResponse({'name': player.user.username, 'title': room.title,
                             #'description': room.description,
-                             'biome': nextRoom.biome,
+                            'biome': room.biome,
                             'players': players,
                             'error_msg': "You cannot move that way."},
                 safe=False)
