@@ -75,10 +75,6 @@ def move(request):
 
     if nextRoom is not None:
         player.currentRoom = nextRoom.id # uses id
-        player.save()
-        players = nextRoom.player_names(player_id)
-        currentPlayerUUIDs = room.playerUUIDs(player_id)
-        nextPlayerUUIDs = nextRoom.playerUUIDs(player_id)
         # for p_uuid in currentPlayerUUIDs:
         #     pusher.trigger(f'p-channel-{p_uuid}', u'broadcast', {'message':f'{player.user.username} has walked {dirs[direction]}.'})
         # for p_uuid in nextPlayerUUIDs:
