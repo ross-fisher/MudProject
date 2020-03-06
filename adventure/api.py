@@ -36,7 +36,7 @@ def initialize(request):
     player  = request.user.player
     room = player.room()
     response = user_info(player, room)
-    return JsonResponse(response)
+    return JsonResponse(response, safe=True)
 
 # @csrf_exempt
 @api_view(["POST"])
@@ -67,11 +67,11 @@ def move(request):
         # for p_uuid in nextPlayerUUIDs:
         #     pusher.trigger(f'p-channel-{p_uuid}', u'broadcast', {'message':f'{player.user.username} has entered from the {reverse_dirs[direction]}.'})
         response = user_info(player, nextRoom)
-        return JsonResponse(response)
+        return JsonResponse(response, safe=True)
     else:
         response = user_info(player, room)
         response['error_msg'] = "You cannot move that way."
-        return JsonResponse(response)
+        return JsonResponse(response, safe=True)
 
 
 @csrf_exempt
@@ -83,7 +83,7 @@ def say(request):
     cm = ChatMessage.objects.create(message=data['message'], player=player, room=room)
     cm.save()
 
-    return JsonResponse({'message': f'You said {cm.message}', 'error': ""}, safe=False, status=500)
+    return JsonResponse({'message': f'You said {cm.message}', 'error': ""}, safe=True, status=500)
 
 
 @csrf_exempt
@@ -96,7 +96,7 @@ def rooms(request):
         for room in rooms:
             room_data.append(eval(str(room)))
 
-        return JsonResponse({'data': room_data}, safe=False)
+        return JsonResponse({'data': room_data}, safe=True)
     except Exception as e:
         return JsonResponse({'error': f'{e}'},status=500)
         #    return JsonResponse({'data' : room_data}, safe=True, status=500)
@@ -109,7 +109,7 @@ def room_items(request):
     room = Room.objects.get(id=data['room_id'])
     items = Item.objects.filter(room=room)
 
-    return JsonResponse({'data': items}, safe=False, status=500)
+    return JsonResponse({'data': items}, safe=True, status=500)
 
 
 @csrf_exempt
@@ -117,7 +117,7 @@ def room_items(request):
 def inventory(request):
     player = request.user.player
     items = Item.objects.filter(player=player)
-    return JsonResponse({'data': mapv(get_json, items)}, safe=False, status=500)
+    return JsonResponse({'data': mapv(get_json, items)}, safe=True, status=500)
 
 
 @csrf_exempt
@@ -155,12 +155,13 @@ def item(request):
     item.save()
     return response
 
+
 @csrf_exempt
 @api_view(['GET'])
 def room(request):
     player = request.user.player
     _room = player.room()
     messages = ChatMessage.objects.filter(room=_room)
-    return JsonResponse({'room': eval(str(_room)), 'messages': mapv(get_json, messages)}, safe=False)
+    return JsonResponse({'room': eval(str(_room)), 'messages': mapv(get_json, messages)}, safe=True)
 
 
