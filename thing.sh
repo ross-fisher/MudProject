@@ -9,5 +9,5 @@ curl -X POST -H 'Authorization: Token a017a7007bf5ecdfb6210b28fd83607123627682' 
 printf '\n'
 curl -X POST -H 'Authorization: Token a017a7007bf5ecdfb6210b28fd83607123627682' -H "Content-Type: application/json" -d '{"message":"something"}' localhost:8000/api/adv/say
 printf '\n'
-curl -X GET -H 'Authorization: Token a017a7007bf5ecdfb6210b28fd83607123627682' -H "Content-Type: application/json" localhost:8000/api/adv/inventory
-printf '\n'
+# curl -X GET -H 'Authorization: Token a017a7007bf5ecdfb6210b28fd83607123627682' -H "Content-Type: application/json" localhost:8000/api/adv/inventory
+# printf '\n'

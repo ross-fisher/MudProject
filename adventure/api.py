@@ -18,6 +18,13 @@ from util import world
 def mapv(f, coll):
     return list(map(f, coll))
 
+
+def inventory(player):
+
+    items = Item.objects.filter(player=player)
+    return mapv(get_json, items)
+
+
 def user_info(player, room):
     if player is None:
         return {'error_msg': 'No such player'}
@@ -25,10 +32,16 @@ def user_info(player, room):
         return {'error_msg': 'No such room'}
 
     players = room.player_names(player.id)
-    return {'name': player.user.username, 'title': room.title,
-            'biome': room.biome, 'players': players}
+    room_data = eval(str(room))
+    messages = ChatMessage.objects.filter(room=room)
+    items = inventory(player)
 
-    pass
+    return {'name': player.user.username,
+            'players': players,
+            'messages':  mapv(get_json, messages),
+            'inventory': items,
+            **room_data}
+
 
 @csrf_exempt
 @api_view(["GET"])
@@ -112,13 +125,6 @@ def room_items(request):
     return JsonResponse({'data': items}, safe=True, status=500)
 
 
-@csrf_exempt
-@api_view(['GET'])
-def inventory(request):
-    player = request.user.player
-    items = Item.objects.filter(player=player)
-    return JsonResponse({'data': mapv(get_json, items)}, safe=True, status=500)
-
 
 @csrf_exempt
 @api_view(['POST'])
@@ -140,17 +146,17 @@ def item(request):
 
     # drop the item into the room
     if item_room != player.room:
-        response = JsonResponse({'error': "Item and player are not in the same room."})
+        response = JsonResponse({'error': "Item and player are not in the same room."}, safe=True)
         pass
     elif action == 'drop':
         item.room = room
         item.player = None
-        response = JsonResponse({'message': 'Dropped the item {item.name}'})
+        response = JsonResponse({'message': 'Dropped the item {item.name}'}, safe=True)
     # take an item from the room, must be in the same room as the item
     elif action == 'take':
         item.room = None
         item.player = player
-        response = JsonResponse({'message': 'Picked up the item {item.name}'})
+        response = JsonResponse({'message': 'Picked up the item {item.name}'}, safe=True)
 
     item.save()
     return response
@@ -162,6 +168,7 @@ def room(request):
     player = request.user.player
     _room = player.room()
     messages = ChatMessage.objects.filter(room=_room)
-    return JsonResponse({'room': eval(str(_room)), 'messages': mapv(get_json, messages)}, safe=True)
+    return JsonResponse({'room': eval(str(_room)),
+                         'messages': mapv(get_json, messages)}, safe=True)
 
 
