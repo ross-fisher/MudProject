@@ -14,15 +14,24 @@ from util import world
 # instantiate pusher
 # pusher = Pusher(app_id=config('PUSHER_APP_ID'), key=config('PUSHER_KEY'), secret=config('PUSHER_SECRET'), cluster=config('PUSHER_CLUSTER'))
 
-
 def mapv(f, coll):
     return list(map(f, coll))
 
 
 def inventory(player):
-
     items = Item.objects.filter(player=player)
     return mapv(get_json, items)
+
+
+def room_info(room):
+    data = eval(str(room))
+    messages = ChatMessage.objects.filter(room=room)
+    data['messages'] = mapv(get_json, messages)
+    players = Player.objects.filter(currentRoom=room.id)
+    player_names = mapv(lambda p: p.user.username, players)
+    data['players'] = player_names
+    data['room_items'] = mapv(get_json, Item.objects.filter(room=room))
+    return data
 
 
 def user_info(player, room):
@@ -31,16 +40,11 @@ def user_info(player, room):
     elif room is None:
         return {'error_msg': 'No such room'}
 
-    players = room.player_names(player.id)
-    room_data = eval(str(room))
-    messages = ChatMessage.objects.filter(room=room)
     items = inventory(player)
 
     return {'name': player.user.username,
-            'players': players,
-            'messages':  mapv(get_json, messages),
             'inventory': items,
-            **room_data}
+            **room_info(room)}
 
 
 @csrf_exempt
@@ -117,17 +121,6 @@ def rooms(request):
 
 @csrf_exempt
 @api_view(['POST'])
-def room_items(request):
-    data = json.loads(request.body)
-    room = Room.objects.get(id=data['room_id'])
-    items = Item.objects.filter(room=room)
-
-    return JsonResponse({'data': items}, safe=True, status=500)
-
-
-
-@csrf_exempt
-@api_view(['POST'])
 def item(request):
     print('ITEM endpoint')
 
@@ -167,8 +160,7 @@ def item(request):
 def room(request):
     player = request.user.player
     _room = player.room()
-    messages = ChatMessage.objects.filter(room=_room)
     return JsonResponse({'room': eval(str(_room)),
-                         'messages': mapv(get_json, messages)}, safe=True)
+                         }, safe=True)
 
 

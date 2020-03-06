@@ -9,10 +9,6 @@ import uuid
 import json
 
 
-def get_json(obj):
-    data = obj.__dict__.copy()
-    data.pop('_state')
-    return data
 
 
 tiles = ['nothing', 'grass']
@@ -22,6 +18,12 @@ inverse_diretions = {v: k for k, v in directions.items()}
 room_width = 40
 room_height = 40
 room_size = room_width * room_height
+
+
+def get_json(obj):
+    data = obj.__dict__.copy()
+    data.pop('_state')
+    return data
 
 
 def set_rectangle(tiles, start_x, start_y, width, height, tile_type):
@@ -74,9 +76,6 @@ class Room(models.Model):
         self.room_directions.append(direction)
 
         self.save()
-
-    def player_names(self, currentPlayerID):
-        return [p.user.username for p in Player.objects.filter(currentRoom=self.id) if p.id != int(currentPlayerID)]
 
     def playerUUIDs(self, currentPlayerID):
         return [p.uuid for p in Player.objects.filter(currentRoom=self.id) if p.id != int(currentPlayerID)]
