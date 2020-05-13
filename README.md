@@ -2,7 +2,7 @@
 
 This is a MUD (Multi-User Dungeon) project ***Multi-User Dungeon (MUD)*** written in Django.
 
-# Some Endpoints 
+# Endpoints 
 ## Registration
 curl -X POST -H "Content-Type: application/json" -d '{"username":"testuser", "password1":"testpassword", "password2":"testpassword"}' localhost:8000/api/registration/
 Response:
